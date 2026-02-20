@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+import json
+
+batch_size = 25
+infile = "nlrs.json"
+
+with open(infile, "r") as f:
+    data = json.load(f)
+
+for i in range(0, len(data), batch_size):
+    chunk = data[i:i + batch_size]
+    outname = f"input/batch_{i//batch_size:03d}.json"
+    with open(outname, "w") as out:
+        json.dump(chunk, out, indent=2)
+
+    print(f"wrote {outname} ({len(chunk)} entries)")

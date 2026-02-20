@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+
+require 'json'
+require 'csv'
+
+FASTA = File.read('probable_nlrs_complete.fasta')
+CATEGORY_LOOKUP = CSV.read('nlr_list_probable.tsv', headers: false, col_sep: "\t").each_with_object({}) do |row, lookup|
+  lookup[row[0]] = row[2]
+end
+
+def create_element(single)
+  {
+    name: "#{single[:name]}_#{single[:category]}",
+    sequences: [
+      {
+        proteinChain: {
+          count: 1,
+          sequence: single[:sequence]
+        }
+      }
+    ],
+    modelSeeds: [42],
+    dialect: "alphafoldserver",
+    version: 1
+  }
+end
+
+def entries_from_file(fasta)
+  fasta
+    .split('>')
+    .reject(&:empty?)
+    .map do |entry|
+      lines = entry.split("\n")
+      header = lines.first
+      sequence = lines.drop(1).join('')
+      name = header.split(/\s+/).first.split('.').first
+      { name:, sequence:, category: CATEGORY_LOOKUP[name] }
+    end
+end
+
+entries = entries_from_file(FASTA)
+  .map(&method(:create_element))
+
+File.write("nlrs.json", JSON.pretty_generate(entries))

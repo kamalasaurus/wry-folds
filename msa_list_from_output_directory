@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+find ./output -name "*_data.json" | sort > ./inference_list.txt
