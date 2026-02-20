@@ -2,7 +2,7 @@
 import json
 
 batch_size = 25
-infile = "nlrs.json"
+infile = "wrkys.json"
 
 with open(infile, "r") as f:
     data = json.load(f)
